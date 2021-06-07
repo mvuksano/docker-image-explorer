@@ -2,6 +2,7 @@ import json
 import requests
 
 from collections.abc import Callable
+from typing import Any
 
 auth_url = "https://auth.docker.io"
 registry_url = "https://registry-1.docker.io"
@@ -19,7 +20,7 @@ def get_auth_token(auth_url: str, service_url: str, image: str) -> str:
         data = r.json()
     except json.JSONDecodeError:
         return ""
-    except requests.ValueError:
+    except ValueError:
         return ""
 
     return data["token"]
@@ -27,7 +28,7 @@ def get_auth_token(auth_url: str, service_url: str, image: str) -> str:
 
 def get_image_data(
     registry_url: str, token: str, image: str, digest: str = "latest"
-) -> dict[str, any]:
+) -> dict[str, Any]:
     headers = {
         "Authorization": "Bearer {}".format(token),
         "Accept": "application/vnd.docker.distribution.manifest.list.v2+json,application/vnd.docker.distribution.manifest.v1+json,application/vnd.docker.distribution.manifest.v2+json",
@@ -41,8 +42,8 @@ def get_image_data(
 
 def filter_for_arch_and_os(
     arch: str, os: str
-) -> Callable[[dict[str, any]], bool]:
-    def fn(d: dict[str, any]):
+) -> Callable[[dict[str, Any]], bool]:
+    def fn(d: dict[str, Any]):
         return (
             d["platform"] is not None
             and d["platform"]["architecture"] == arch
@@ -53,7 +54,7 @@ def filter_for_arch_and_os(
 
 
 def get_digest_from_manifests(
-    arch: str, os: str, img_data: dict[str, any]
+    arch: str, os: str, img_data: dict[str, Any]
 ) -> str:
     found_manifests = filter(
         filter_for_arch_and_os(arch, os), image_data["manifests"]
@@ -61,7 +62,7 @@ def get_digest_from_manifests(
     return next(found_manifests)["digest"]
 
 
-def get_layer_digests(layers: dict[str, any]) -> list[str]:
+def get_layer_digests(layers: dict[str, Any]) -> list[str]:
     return [layer_info["digest"] for layer_info in layers["layers"]]
 
 
