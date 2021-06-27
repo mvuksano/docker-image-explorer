@@ -1,0 +1,9 @@
+[tool.black]
+line-length = 80
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.dependencies]
+requests = { version = ">=2.25.1, == 2.25.*" }

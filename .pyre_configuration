@@ -1,6 +1,6 @@
 {
   "source_directories": [
-    "."
+    "src"
   ],
-  "taint_models_path": "/home/mvuksano/.venv/docker-wo-docker/lib"
+  "taint_models_path": "/home/mvuksano/.venv/docker-wo-docker-2/lib"
 }

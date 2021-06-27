@@ -2,12 +2,8 @@ import json
 import requests
 
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
-
-auth_url = "https://auth.docker.io"
-registry_url = "https://registry-1.docker.io"
-service_url = "registry.docker.io"
-image = "golang"
 
 
 def get_auth_token(auth_url: str, service_url: str, image: str) -> str:
@@ -57,7 +53,7 @@ def get_digest_from_manifests(
     arch: str, os: str, img_data: dict[str, Any]
 ) -> str:
     found_manifests = filter(
-        filter_for_arch_and_os(arch, os), image_data["manifests"]
+        filter_for_arch_and_os(arch, os), img_data["manifests"]
     )
     return next(found_manifests)["digest"]
 
@@ -71,7 +67,7 @@ def download_layer(
     auth_token: str,
     image: str,
     layer_digest: str,
-    filename: str,
+    filename: Path,
 ) -> None:
     headers = {
         "Authorization": "Bearer {}".format(auth_token),
@@ -84,14 +80,3 @@ def download_layer(
         for chunk in r.iter_content(chunk_size=512):
             f.write(chunk)
 
-
-if __name__ == "__main__":
-    token = get_auth_token(auth_url, service_url, image)
-    image_data = get_image_data(registry_url, token, image)
-    digest = get_digest_from_manifests("amd64", "linux", image_data)
-    layers_data = get_image_data(registry_url, token, image, digest)
-    digests_for_layers = get_layer_digests(layers_data)
-    for (i, l) in enumerate(digests_for_layers):
-        download_layer(
-            registry_url, token, image, l, "layer_{}.tar.gz".format(i)
-        )
